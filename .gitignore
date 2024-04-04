@@ -3,3 +3,7 @@ __pycache__
 .venv
 instance
 .DS_Store
+node_modules
+package.json
+tsconfig.json
+bun.lockb
