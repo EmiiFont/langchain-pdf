@@ -2,7 +2,7 @@ import Pdf from '#models/pdf'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PdfsController {
-  async index({ auth }: HttpContext) {
+  async list({ auth }: HttpContext) {
     const pdfs = await Pdf.query().where('user_id', auth.user!.id).orderBy('created_at', 'desc')
 
     return pdfs.map((pdf) => pdf.toJSON())
