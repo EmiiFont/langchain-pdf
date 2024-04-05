@@ -15,3 +15,4 @@ const staticServerConfig = defineConfig({
 })
 
 export default staticServerConfig
+
