@@ -11,12 +11,9 @@ const UsersController = () => import('#controllers/users_controller')
 const ConversationsController = () => import('#controllers/conversations_controller')
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
+const ClientsController = () => import('#controllers/clients_controller')
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
-})
+router.get('/:path?', [ClientsController, 'catchAll'])
 
 router.get('users', [UsersController, 'getUser'])
 router.post('users', [UsersController, 'signUp'])

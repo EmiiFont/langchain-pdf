@@ -28,4 +28,3 @@ export default class UsersController {
     response.json(user?.asDict())
   }
 }
-
