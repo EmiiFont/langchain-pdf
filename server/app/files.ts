@@ -9,9 +9,10 @@ const uploadUrl = `${env.get('UPLOAD_URL')}/upload`
 interface UploadResponse {
   message: string
   file_id: string
+  statusCode: number
 }
 
-async function upload(localFilePath: string): Promise<[UploadResponse, number]> {
+async function upload(localFilePath: string): Promise<UploadResponse> {
   const formData = new FormData()
   const fileStream = fs.createReadStream(localFilePath)
   const fileBlob = new Blob([fileStream as any]) // Use 'any' type for compatibility
@@ -24,7 +25,7 @@ async function upload(localFilePath: string): Promise<[UploadResponse, number]> 
       body: formData as any,
     })
     const responseBody = await response.json()
-    return [responseBody, response.status]
+    return { status: response.status, ...responseBody }
   } catch (error) {
     throw error
   }

@@ -1,6 +1,8 @@
 import Pdf from '#models/pdf'
 import type { HttpContext } from '@adonisjs/core/http'
 
+import { createDownloadUrl, upload } from '../files.ts'
+
 export default class PdfsController {
   async list({ auth }: HttpContext) {
     const pdfs = await Pdf.query().where('user_id', auth.user!.id).orderBy('created_at', 'desc')
@@ -9,34 +11,33 @@ export default class PdfsController {
   }
 
   async uploadFile({ auth, request, response }: HttpContext) {
-    // const file = request.file('file')
-    // const { id: fileId, file_path: filePath, file_name: fileName } = file
-    //
-    // const { res, status_code } = await files.upload(filePath)
-    // if (status_code >= 400) {
-    //   return response.status(status_code).json(res)
-    // }
-    //
-    // const pdf = await Pdf.create({
-    //   id: fileId,
-    //   name: fileName,
-    //   user_id: auth.user.id,
-    // })
-    //
+    const file = request.file('file')
+    const { id: fileId, file_path: filePath, file_name: fileName } = request.body()
+    console.log(file)
+    const { message: res, statusCode } = await upload(filePath)
+    if (statusCode >= 400) {
+      return response.status(statusCode).json(res)
+    }
+
+    const pdf = await Pdf.create({
+      id: fileId,
+      name: fileName,
+      userId: auth.user!.id,
+    })
+
     // // TODO: Defer this to be processed by the worker
     // processDocument(pdf.id)
     //
-    // return pdf.toJSON()
-    return response.json({})
+    return pdf.toJSON()
   }
 
-  async show({ params, response }: HttpContext) {
+  async show({ params }: HttpContext) {
     const { pdf_id: pdfId } = params
     const pdf = await Pdf.findOrFail(pdfId)
 
     return {
       pdf: pdf.toJSON(),
-      // download_url: files.createDownloadUrl(pdf.id),
+      download_url: createDownloadUrl(pdf.id.toString()),
     }
   }
 }
