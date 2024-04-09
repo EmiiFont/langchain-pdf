@@ -18,12 +18,19 @@ export default await Env.create(new URL('../', import.meta.url), {
   HOST: Env.schema.string({ format: 'host' }),
   LOG_LEVEL: Env.schema.string(),
   // SESSION_PERMANENT = True
-  SECRET_KEY: Env.schema.string(),
-  SQLALCHEMY_DATABASE_URI: Env.schema.string(),
-  UPLOAD_URL: Env.schema.string(),
-  // CELERY = {
+  // SECRET_KEY: Env.schema.string(),
+  // SQLALCHEMY_DATABASE_URI: Env.schema.string(),
+  // UPLOAD_URL: Env.schema.string(),
+  // // CELERY = {
   //     "broker_url": os.environ.get("REDIS_URI", False),
   //     "task_ignore_result": True,
   //     "broker_connection_retry_on_startup": False,
   // }
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring session package
+  |----------------------------------------------------------
+  */
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const)
 })

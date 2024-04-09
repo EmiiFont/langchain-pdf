@@ -27,4 +27,3 @@ export default class Pdf extends BaseModel {
     }
   }
 }
-
