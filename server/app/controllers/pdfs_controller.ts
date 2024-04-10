@@ -5,8 +5,12 @@ import { createDownloadUrl, upload } from '../files.ts'
 
 export default class PdfsController {
   async list({ auth }: HttpContext) {
-    const pdfs = await Pdf.query().where('user_id', auth.user!.id).orderBy('created_at', 'desc')
+    console.log('pdfs list')
+    const pdfs = await Pdf.query().where('userid', auth.user!.id).orderBy('createdAt', 'desc')
 
+    if (pdfs === null) {
+      return {}
+    }
     return pdfs.map((pdf) => pdf.toJSON())
   }
 

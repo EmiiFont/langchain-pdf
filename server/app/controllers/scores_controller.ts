@@ -30,4 +30,3 @@ export default class ScoresController {
     return response.json({})
   }
 }
-

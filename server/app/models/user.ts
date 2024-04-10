@@ -41,4 +41,3 @@ export default class User extends compose(BaseModel, AuthFinder) {
     return { id: this.id, email: this.email }
   }
 }
-

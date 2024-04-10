@@ -20,6 +20,7 @@ async function upload(localFilePath: string): Promise<UploadResponse> {
   formData.append('file', fileBlob, path.basename(localFilePath)) // Append the file Blob to formData
 
   try {
+    console.log('upload url:', uploadUrl)
     const response = await fetch(uploadUrl, {
       method: 'POST',
       body: formData as any,
