@@ -3,29 +3,35 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import fetch from 'node-fetch'
 import env from '#start/env'
+import { fileURLToPath } from 'node:url'
+import { dirname } from 'node:path'
+import axios from 'axios'
 
 const uploadUrl = `${env.get('UPLOAD_URL')}/upload`
+const FILENAME = fileURLToPath(import.meta.url)
+const DIRNAME = dirname(FILENAME)
 
 interface UploadResponse {
   message: string
-  file_id: string
   statusCode: number
 }
 
 async function upload(localFilePath: string): Promise<UploadResponse> {
   const formData = new FormData()
-  const fileStream = fs.createReadStream(localFilePath)
-  const fileBlob = new Blob([fileStream as any]) // Use 'any' type for compatibility
+  const blob = new Blob([fs.readFileSync(localFilePath)], { type: 'application/pdf' })
 
-  formData.append('file', fileBlob, path.basename(localFilePath)) // Append the file Blob to formData
+  formData.append('Content-Type', 'application/pdf')
+  formData.append('file', blob, path.basename(localFilePath))
+  console.log(formData)
 
   try {
-    console.log('upload url:', uploadUrl)
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      body: formData as any,
+    // save file to server
+    const response = await axios.post(uploadUrl, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     })
-    const responseBody = await response.json()
+    const responseBody = await response.data
     return { status: response.status, ...responseBody }
   } catch (error) {
     throw error

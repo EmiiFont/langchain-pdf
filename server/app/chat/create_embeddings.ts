@@ -1,5 +1,14 @@
+import { PDFLoader } from 'langchain/document_loaders/fs/pdf'
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 export function createEmbeddingsForPdf(pdfId: string, pdfPath: string) {
-  console.log(pdfId, pdfPath)
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 500,
+    chunkOverlap: 100,
+  })
+  const pdfLoader = new PDFLoader(pdfPath)
+  const docs = pdfLoader.loadAndSplit(textSplitter)
+  console.log(docs)
+
   //     Generate and store embeddings for the given pdf
   //
   //     1. Extract text from the specified PDF.

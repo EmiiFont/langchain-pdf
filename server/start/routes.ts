@@ -38,4 +38,4 @@ router
   .use(middleware.handleFileUpload())
 
 router.get('api/pdfs', [PdfsController, 'list']).use(middleware.auth())
-// router.get('api/pdfs/:pdf_id', [PdfsController, 'show']).use(middleware.auth())
+router.get('api/pdfs/:pdf_id', [PdfsController, 'show']).use(middleware.auth())

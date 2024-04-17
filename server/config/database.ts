@@ -19,4 +19,3 @@ const dbConfig = defineConfig({
 })
 
 export default dbConfig
-

@@ -20,7 +20,8 @@ export default await Env.create(new URL('../', import.meta.url), {
   // SESSION_PERMANENT = True
   // SECRET_KEY: Env.schema.string(),
   // SQLALCHEMY_DATABASE_URI: Env.schema.string(),
-  // UPLOAD_URL: Env.schema.string(),
+  UPLOAD_URL: Env.schema.string(),
+  UPLOAD_DIR: Env.schema.string(),
   // // CELERY = {
   //     "broker_url": os.environ.get("REDIS_URI", False),
   //     "task_ignore_result": True,
@@ -32,5 +33,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   | Variables for configuring session package
   |----------------------------------------------------------
   */
-  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const)
+  SESSION_DRIVER: Env.schema.enum(['cookie', 'memory'] as const),
 })

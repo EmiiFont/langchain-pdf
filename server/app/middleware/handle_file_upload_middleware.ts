@@ -3,6 +3,7 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import path from 'node:path'
 import fs from 'node:fs'
 import os from 'node:os'
+import { v4 as uuidv4 } from 'uuid'
 
 export default class HandleFileUploadMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
@@ -12,7 +13,7 @@ export default class HandleFileUploadMiddleware {
     }
 
     // generate a unique file id
-    const fileId = Date.now().toString()
+    const fileId = uuidv4()
     const fileName = file.clientName
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'uploads-'))
 
@@ -27,6 +28,7 @@ export default class HandleFileUploadMiddleware {
     // }
     //
     // add to the body instead
+    console.log('file saved to', filePath)
     const req: any = ctx.request
     req.body = req.body || {}
     req.body.file_id = fileId
