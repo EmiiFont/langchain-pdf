@@ -1,8 +1,8 @@
 import Pdf from '#models/pdf'
-import fs from 'node:fs'
 import type { HttpContext } from '@adonisjs/core/http'
 
 import { createDownloadUrl, upload } from '../files.ts'
+import { processDocument } from '../tasks/embeddings.ts'
 
 export default class PdfsController {
   async list({ auth }: HttpContext) {
@@ -29,9 +29,8 @@ export default class PdfsController {
       userid: auth.user!.id,
     })
 
-    console.log(request.body())
     // // TODO: Defer this to be processed by the worker
-    // processDocument(pdf.id)
+    processDocument(file_id)
     //
     return pdf.toJSON()
   }

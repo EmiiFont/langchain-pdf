@@ -8,4 +8,5 @@ export async function processDocument(pdfId: string) {
   const downloaded = new Download(pdf.id.toString())
   const filePath = await downloaded.startDownload()
   createEmbeddingsForPdf(pdf.id.toString(), filePath)
+  downloaded.cleanup()
 }

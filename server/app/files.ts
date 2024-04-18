@@ -22,7 +22,6 @@ async function upload(localFilePath: string): Promise<UploadResponse> {
 
   formData.append('Content-Type', 'application/pdf')
   formData.append('file', blob, path.basename(localFilePath))
-  console.log(formData)
 
   try {
     // save file to server
@@ -57,22 +56,29 @@ class Download {
     this.filePath = path.join(this.tempDir, this.file_id)
     const url = createDownloadUrl(this.file_id)
 
-    const response = await fetch(url)
-    const fileStream = fs.createWriteStream(this.filePath)
+    try {
+      const response = await axios.get(url, { responseType: 'stream' })
+      return new Promise((resolve, reject) => {
+        const writer = fs.createWriteStream(this.filePath)
+        response.data.pipe(writer)
 
-    return new Promise<string>((resolve, reject) => {
-      response.body.pipe(fileStream)
-      fileStream.on('finish', () => {
-        resolve(this.filePath)
+        writer.on('finish', () => {
+          resolve(this.filePath)
+        })
+
+        writer.on('error', (err) => {
+          console.error('Error writing file:', err)
+          reject(err)
+        })
       })
-      fileStream.on('error', (error) => {
-        reject(error)
-      })
-    })
+    } catch (error) {
+      console.error('Error downloading file:', error)
+      throw error
+    }
   }
 
   cleanup(): void {
-    fs.rmdirSync(this.tempDir, { recursive: true })
+    // fs.rmdirSync(this.tempDir, { recursive: true })
   }
 
   async startDownload(): Promise<string> {
