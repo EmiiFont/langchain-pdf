@@ -1,10 +1,12 @@
 import { Hono } from 'hono'
-import pdfs from './pdfs'
-import converstation from './conversation'
-import user from './user.auth'
+import { logger } from 'hono/logger'
+import pdfs from './controllers/pdfs'
+import converstation from './controllers/conversation'
+import user from './controllers/user.auth'
 
 const app = new Hono()
 
+app.use(logger());
 app.get('/', (c) => {
   return c.text('Hello Hono!')
 });
