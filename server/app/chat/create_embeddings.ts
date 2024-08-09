@@ -7,7 +7,8 @@ export async function createEmbeddingsForPdf(pdfId: string, pdfPath: string) {
     chunkSize: 500,
     chunkOverlap: 100,
   })
-  const pdfLoader = new PDFLoader(pdfPath)
-  const docs = await pdfLoader.loadAndSplit(textSplitter)
-  await vectorStore.addDocuments(docs)
+  console.log(`Loading and splitting PDF ${pdfId} from ${pdfPath}`);
+  const pdfLoader = new PDFLoader(pdfPath);
+  const docs = await pdfLoader.loadAndSplit(textSplitter);
+  await vectorStore.addDocuments(docs);
 }

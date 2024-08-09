@@ -22,7 +22,7 @@ export default class ConversationsController {
     }
 
     const user = auth.user
-    const conversation = await Conversation.create({ userId: user?.id, pdfId: pdf.id })
+    const conversation = await Conversation.create({ userId: user?.id, pdfId: parseInt(pdf.id) })
 
     return conversation.toJSON()
   }
