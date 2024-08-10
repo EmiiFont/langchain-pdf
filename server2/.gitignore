@@ -1,2 +1,6 @@
 # deps
 node_modules/
+prisma/dev.db
+prisma/dev.db-journal
+prisma/.env
+.env
