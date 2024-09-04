@@ -1,35 +1,49 @@
-import Conversation from '#models/conversation'
-import Message from '#models/message'
+import { PrismaClient } from '@prisma/client'
 import { AIMessage, HumanMessage, SystemMessage } from 'langchain/schema'
+
+const prisma = new PrismaClient();
 
 export async function getMessagesByConversationId(
   conversationId: string
 ): Promise<(AIMessage | HumanMessage | SystemMessage)[]> {
-  const messages = await Message.query()
+  const messages = await prisma.message.findMany({
+    where: {
+      conversation_id: conversationId,
+    },
+    orderBy: {
+      created_on: 'desc',
+    },
+  })
+  /*const messages = await Message.query()
     .where('conversation_id', conversationId)
-    .orderBy('created_on', 'desc')
+    .orderBy('created_on', 'desc')*/
 
-  return messages.map((message) => message.asLCMessage())
+  return messages.map((message: any) => message.asLCMessage())
 }
 
 export async function addMessageToConversation(
   conversationId: string,
   role: string,
   content: string
-): Promise<Message> {
-  const message = new Message()
-  message.conversationId = conversationId
-  message.role = role
-  message.content = content
-  await message.save()
-
+): Promise<any> {
+  const message = await prisma.message.create({
+    data: {
+      conversation_id: conversationId,
+      role,
+      content,
+    },
+  })
   return message
 }
 
 export async function getConversationComponents(
   conversationId: string
 ): Promise<Record<string, string>> {
-  const conversation = await Conversation.find(conversationId)
+  const conversation = await prisma.Conversation.findUnique({
+    where: {
+      id: conversationId,
+    },
+  })
 
   return {
     llm: conversation!.llm,
@@ -44,7 +58,14 @@ export async function setConversationComponents(
   retriever: string,
   memory: string
 ): Promise<void> {
-  const conversation = await Conversation.find(conversationId)
-  conversation!.merge({ llm, retriever, memory })
-  await conversation!.save()
+  await prisma.Conversation.update({
+    where: {
+      id: conversationId,
+    },
+    data: {
+      llm,
+      retriever,
+      memory,
+    },
+  })
 }

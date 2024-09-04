@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -17,8 +17,8 @@ model User {
  password String
  createAt DateTime @default(now())
  updatedAt DateTime @updatedAt
- pdfs Pdf[] 
- conversations Conversation[] 
+ pdfs Pdf[]
+ conversations Conversation[]
 }
 
 model Pdf {
