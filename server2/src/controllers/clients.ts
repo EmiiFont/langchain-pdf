@@ -17,10 +17,9 @@ app.get('/catchAll', async (c) => {
     const staticPath = '/' //Helpers.publicPath()
 
     if (filePath !== '' && (await fileExists(staticPath, filePath))) {
-        return response.download(path.join(staticPath, filePath))
+        return c.html(path.join(staticPath, filePath))
     }
-
-    return response.download(path.join(staticPath, 'index.html'))
+    return c.html(path.join(staticPath, 'index.html'))
 });
 
 async function fileExists(basePath: string, filePath: string) {
