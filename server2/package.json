@@ -4,9 +4,14 @@
     "dev": "bun run --hot src/index.ts"
   },
   "dependencies": {
+    "@langchain/core": "^0.2.31",
+    "@langchain/openai": "^0.2.9",
+    "@langchain/pinecone": "^0.0.9",
+    "@pinecone-database/pinecone": "^3.0.2",
     "@prisma/client": "^5.18.0",
     "hono": "^4.5.4",
     "langchain": "^0.2.17",
+    "pdf-parse": "^1.1.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {

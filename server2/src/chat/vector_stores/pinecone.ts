@@ -7,4 +7,9 @@ const pineconeClient = new Pinecone({
 })
 
 const pineconeIndex = pineconeClient.index(process.env.PINECONE_INDEX_NAME!)
-export const vectorStore = await PineconeStore.fromExistingIndex(embeddings, { pineconeIndex })
+
+async function createVectorStore() {
+    return await PineconeStore.fromExistingIndex(embeddings, { pineconeIndex })
+}
+
+export { createVectorStore }
