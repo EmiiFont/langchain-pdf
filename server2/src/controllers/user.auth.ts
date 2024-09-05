@@ -36,7 +36,7 @@ app.post('/signOut', (c) => {
   return c.json({ users: [] })
 });
 
-app.post('/signin', (c) => {
+app.post('/signin', async (c) => {
   const body = await c.req.parseBody<{
 		username: string;
 		password: string;
