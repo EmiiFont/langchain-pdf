@@ -37,7 +37,38 @@ app.post('/signOut', (c) => {
 });
 
 app.post('/signin', (c) => {
-  return c.json({ users: [] })
+  const body = await c.req.parseBody<{
+		username: string;
+		password: string;
+	}>();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      username: body.username
+    }
+  });
+
+  if (!user) {
+    c.status(401);
+    c.json({ error: 'Invalid username or password' });
+  }
+
+  const validPassword = await verify(existingUser.password_hash, password, {
+		memoryCost: 19456,
+		timeCost: 2,
+		outputLen: 32,
+		parallelism: 1
+	});
+
+  if(!validPassword) {
+    c.status(401);
+    c.json({ error: 'Invalid username or password' });
+  }
+
+  const session = await lucia.createSession(existingUser.id, {});
+
+	c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
+  return c.json({ user })
 });
 
 export default app
