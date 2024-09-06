@@ -61,4 +61,7 @@ app.get('/api/:path?', (c) => {
   return c.json({ catchAll: {} });
 });
 
-export default app
+export default { 
+  port: 3333, 
+  fetch: app.fetch, 
+}

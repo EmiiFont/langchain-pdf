@@ -8,16 +8,19 @@ const app = new Hono();
 const prisma = new PrismaClient();
 
 app.get('/user', (c) => {
-  return c.json({ users: [] })
+  const user = c.get('user');
+  if (!user) {
+    c.status(400);
+    return c.json({});
+  }
+
+  return c.json({ id: user.id, email: user.email });
 });
 
 app.post('/signup', async (c) => {
-  console.log(c.req)
-  const body = await c.req.parseBody<{
-    username: string;
-    password: string;
-  }>();
-  if (!body.username || !body.password) {
+  const body = await c.req.json();
+  console.log(body)
+  if (!body.email || !body.password) {
     c.status(400);
     return c.json({ error: 'Invalid username or password' });
   }
@@ -29,13 +32,14 @@ app.post('/signup', async (c) => {
   });
   const user = await prisma.user.create({
     data: {
-      email: body.username,
+      email: body.email,
       password: passwordHash,
-      fullName: body.username,
+      fullName: body.email,
     }
   });
-  const session = await lucia.createSession(user.id.toString(), {});
+  const session = await lucia.createSession(parseInt(user.id), {});
   c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
+  c.status(200)
   return c.json(user)
 });
 
@@ -45,13 +49,18 @@ app.post('/signOut', (c) => {
 
 app.post('/signin', async (c) => {
   const body = await c.req.parseBody<{
-    username: string;
+    email: string;
     password: string;
   }>();
 
+  if(!body.email || !body.password) {
+    c.status(400);
+    return c.json({ error: 'Invalid username or password' });
+  }
+
   const user = await prisma.user.findUnique({
     where: {
-      email: body.username
+      email: body.email
     }
   });
 
