@@ -16,7 +16,7 @@ const app = new Hono<{
 }>()
 
 app.use(logger());
-app.use(csrf());
+//app.use(csrf());
 
 //adapter.getUserSessions(useImperativeHandle)
 
@@ -53,8 +53,8 @@ app.get('/api', (c) => {
   return c.text('Hello Hono!')
 });
 
-app.route('api/auth', user);
-app.route('api/conversations', converstation);
+app.route('/api/auth', user);
+app.route('/api/conversations', converstation);
 app.route('/api/pdfs', pdfs)
 
 app.get('/api/:path?', (c) => {

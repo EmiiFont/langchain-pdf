@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { hash } from "@node-rs/argon2";
 import { PrismaClient } from '@prisma/client';
 import { lucia } from '../lib/auth'
+import { verify } from "@node-rs/argon2";
 // auth routes
 const app = new Hono();
 const prisma = new PrismaClient();
@@ -11,10 +12,17 @@ app.get('/user', (c) => {
 });
 
 app.post('/signup', async (c) => {
+  console.log(c.req)
   const body = await c.req.parseBody<{
     username: string;
     password: string;
   }>();
+  const dt = await c.req.parseBody({ all: true })
+  console.log(dt)
+  if (!body.username || !body.password) {
+    c.status(400);
+    return c.json({ error: 'Invalid username or password' });
+  }
   const passwordHash = await hash(body.password, {
     memoryCost: 19456,
     timeCost: 2,
@@ -23,8 +31,9 @@ app.post('/signup', async (c) => {
   });
   const user = await prisma.user.create({
     data: {
-      username: body.username,
-      password: passwordHash
+      email: body.username,
+      password: passwordHash,
+      fullName: body.username,
     }
   });
   const session = await lucia.createSession(user.id, {});
@@ -38,36 +47,37 @@ app.post('/signOut', (c) => {
 
 app.post('/signin', async (c) => {
   const body = await c.req.parseBody<{
-		username: string;
-		password: string;
-	}>();
+    username: string;
+    password: string;
+  }>();
 
   const user = await prisma.user.findUnique({
     where: {
-      username: body.username
+      email: body.username
     }
   });
 
   if (!user) {
     c.status(401);
-    c.json({ error: 'Invalid username or password' });
+    return c.json({ error: 'Invalid username or password' });
   }
 
-  const validPassword = await verify(existingUser.password_hash, password, {
-		memoryCost: 19456,
-		timeCost: 2,
-		outputLen: 32,
-		parallelism: 1
-	});
+  const validPassword = await verify(user.password, body.password, {
+    memoryCost: 19456,
+    timeCost: 2,
+    outputLen: 32,
+    parallelism: 1
+  });
 
-  if(!validPassword) {
+  if (!validPassword) {
     c.status(401);
-    c.json({ error: 'Invalid username or password' });
+    return c.json({ error: 'Invalid username or password' });
   }
 
-  const session = await lucia.createSession(existingUser.id, {});
+  const session = await lucia.createSession(user.id, {});
 
-	c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
+  c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
+  c.status(200)
   return c.json({ user })
 });
 

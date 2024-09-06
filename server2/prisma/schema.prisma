@@ -19,6 +19,15 @@ model User {
  updatedAt DateTime @updatedAt
  pdfs Pdf[]
  conversations Conversation[]
+ sessions Session[]
+}
+
+model Session {
+  id        String   @id
+  userId    Int 
+  expiresAt DateTime
+
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
 model Pdf {
