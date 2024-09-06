@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { PrismaClient } from "@prisma/client";
+import { createDownloadUrl } from "../files"
 
 const prisma = new PrismaClient();
 
@@ -36,10 +37,18 @@ app.get('/', async (c) => {
   return c.json(userPdfs.map((pdf) => ({ id: pdf.id, name: pdf.name, userId: pdf.userId })))
 });
 
-app.get('/:pdf_id', (c) => {
+app.get('/:pdf_id', async (c) => {
   const id = c.req.param('pdf_id')
-  const pdf = prisma.pdf.findUnique({ where: { id } })
-  return c.json({ pdf })
+  const pdfDb = await prisma.pdf.findUnique({ where: { id: parseInt(id) } })
+  if (!pdfDb) {
+    c.status(404);
+    return c.json({ error: 'Pdf not found' });
+  }
+  console.log(pdfDb)
+  const downloadUrl = createDownloadUrl(pdfDb.id.toString())
+  console.log(downloadUrl)
+  const pdf = { id: pdfDb.id, name: pdfDb.name, userId: pdfDb.userId }
+  return c.json({ pdf, download_url: downloadUrl})
 });
 
 export default app

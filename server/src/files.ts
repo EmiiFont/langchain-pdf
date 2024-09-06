@@ -91,3 +91,5 @@ class Download {
     }
   }
 }
+
+export { upload, createDownloadUrl, Download }
