@@ -17,8 +17,6 @@ app.post('/signup', async (c) => {
     username: string;
     password: string;
   }>();
-  const dt = await c.req.parseBody({ all: true })
-  console.log(dt)
   if (!body.username || !body.password) {
     c.status(400);
     return c.json({ error: 'Invalid username or password' });
