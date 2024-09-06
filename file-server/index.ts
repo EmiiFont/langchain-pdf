@@ -48,3 +48,58 @@ app.listen(port, () => {
 });
 console.log("Hello via Bun!");
 
+
+//import { Hono } from 'hono'
+//import { serveStatic } from 'hono/bun'
+//import { cors } from 'hono/cors'
+//import { streamToFile } from 'bun'
+//
+//const app = new Hono()
+//const port = 1337
+//
+//app.use('*', cors())
+//
+//app.get('/', (c) => c.text('file server running'))
+//
+//app.post('/upload', async (c) => {
+//  const file = await c.req.file('file')
+//  if (!file) {
+//    return c.json({ msg: 'No file uploaded' }, 400)
+//  }
+//
+//  if (file.type !== 'application/pdf') {
+//    return c.json({ msg: 'Only pdf files are allowed' }, 400)
+//  }
+//
+//  const filePath = `${import.meta.dir}/uploads/${file.name}`
+//  try {
+//    await streamToFile(file.stream(), filePath)
+//    return c.json({ message: 'file saved successfully' }, 200)
+//  } catch (err) {
+//    console.error(err)
+//    return c.json({ msg: 'Error saving file' }, 500)
+//  }
+//})
+//
+//app.get('/download/:fileName', async (c) => {
+//  const fileName = c.req.param('fileName')
+//  const filePath = `${import.meta.dir}/uploads/${fileName}`
+//  const file = Bun.file(filePath)
+//
+//  if (await file.exists()) {
+//    console.log('file exists', filePath)
+//    return c.newResponse(file.stream())
+//  } else {
+//    return c.json({ error: 'File not found' }, 404)
+//  }
+//})
+//
+//app.use('/uploads/*', serveStatic({ root: './uploads' }))
+//
+//console.log(`Server is running at http://localhost:${port}`)
+//export default {
+//  port,
+//  fetch: app.fetch
+//}
+//
+//console.log('Hello via Bun!')
