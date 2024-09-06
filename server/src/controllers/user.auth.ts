@@ -34,7 +34,7 @@ app.post('/signup', async (c) => {
       fullName: body.username,
     }
   });
-  const session = await lucia.createSession(user.id, {});
+  const session = await lucia.createSession(user.id.toString(), {});
   c.header("Set-Cookie", lucia.createSessionCookie(session.id).serialize(), { append: true });
   return c.json(user)
 });
