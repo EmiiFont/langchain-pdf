@@ -1,0 +1,29 @@
+{
+  "name": "server2",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.2.31",
+    "@langchain/openai": "^0.2.9",
+    "@langchain/pinecone": "^0.0.9",
+    "@lucia-auth/adapter-prisma": "^4.0.1",
+    "@pinecone-database/pinecone": "^3.0.2",
+    "@prisma/client": "5.18.0",
+    "axios": "^1.7.7",
+    "hono": "^4.5.4",
+    "langchain": "^0.2.17",
+    "lucia": "^3.2.0",
+    "pdf-parse": "^1.1.1",
+    "prisma": "^5.19.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "module": "index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
