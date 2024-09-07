@@ -31,7 +31,7 @@ model Session {
 }
 
 model Pdf {
-  id      Int      @id @default(autoincrement())
+  id      String      @id 
   name String
   content String
   createAt DateTime @default(now())
@@ -51,7 +51,7 @@ model Conversation {
   messages Message[]
   userId  Int
   user    User     @relation(fields: [userId], references: [id])
-  pdfId Int
+  pdfId  String
   pdf    Pdf @relation(fields: [pdfId], references: [id])
 }
 

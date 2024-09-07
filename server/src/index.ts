@@ -7,13 +7,9 @@ import { csrf } from "hono/csrf";
 import { getCookie } from "hono/cookie";
 import type { User, Session } from "lucia";
 import { lucia } from "./lib/auth";
+import type { Context } from './context'
 
-const app = new Hono<{
-  Variables: {
-    user: User | null;
-    session: Session | null;
-  };
-}>()
+const app = new Hono<Context>()
 
 app.use(logger());
 //app.use(csrf());
@@ -61,7 +57,7 @@ app.get('/api/:path?', (c) => {
   return c.json({ catchAll: {} });
 });
 
-export default { 
-  port: 3333, 
-  fetch: app.fetch, 
+export default {
+  port: 3333,
+  fetch: app.fetch,
 }
