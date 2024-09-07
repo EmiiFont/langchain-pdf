@@ -4,7 +4,6 @@ __pycache__
 instance
 .DS_Store
 node_modules
-package.json
-tsconfig.json
 bun.lockb
 test-document.pdf
+file-server/uploads/6262da2f-852b-4e4d-9023-5d76c26eab54
