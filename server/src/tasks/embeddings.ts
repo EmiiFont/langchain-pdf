@@ -5,7 +5,7 @@ import { Download } from '../files.ts'
 export async function processDocument(pdfId: string) {
   const prisma = new PrismaClient()
   const pdf = await prisma.pdf.findUnique({
-    where: { id: parseInt(pdfId) }
+    where: { id: pdfId }
   })
 
   const downloaded = new Download(pdf.id.toString())

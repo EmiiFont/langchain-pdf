@@ -38,9 +38,9 @@ app.post('/', fileUploadMiddleware, async (c) => {
     }
   });
 
-  // // TODO: Defer this to be processed by the worker
-  //processDocument(fileId)
-  //
+   // TODO: Defer this to be processed by the worker
+  processDocument(fileId)
+
   const pdf = { id: newPdf.id, name: newPdf.name, userId: newPdf.userId }
   return c.json({ pdf })
 });
@@ -63,9 +63,9 @@ app.get('/', async (c) => {
   return c.json(userPdfs.map((pdf) => ({ id: pdf.id, name: pdf.name, userId: pdf.userId })))
 });
 
-app.get('/:pdf_id', async (c) => {
-  const id = c.req.param('pdf_id')
-  const pdfDb = await prisma.pdf.findUnique({ where: { id: parseInt(id) } })
+app.get('/:id', async (c) => {
+  const id = c.req.param('id')
+  const pdfDb = await prisma.pdf.findUnique({ where: { id: id } })
   if (!pdfDb) {
     c.status(404);
     return c.json({ error: 'Pdf not found' });
