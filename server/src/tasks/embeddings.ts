@@ -8,6 +8,9 @@ export async function processDocument(pdfId: string) {
     where: { id: pdfId }
   })
 
+  if (!pdf) {
+    throw new Error(`PDF with id ${pdfId} not found`)
+  }
   const downloaded = new Download(pdf.id.toString())
   const filePath = await downloaded.startDownload()
   createEmbeddingsForPdf(pdf.id.toString(), filePath)

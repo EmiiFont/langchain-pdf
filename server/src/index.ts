@@ -8,6 +8,8 @@ import { getCookie } from "hono/cookie";
 import type { User, Session } from "lucia";
 import { lucia } from "./lib/auth";
 import type { Context } from './context'
+import { processDocument } from './tasks/embeddings'
+import { Worker } from 'bullmq'
 
 const app = new Hono<Context>()
 
@@ -15,6 +17,7 @@ app.use(logger());
 //app.use(csrf());
 
 //adapter.getUserSessions(useImperativeHandle)
+
 
 app.use("*", async (c, next) => {
   const sessionId = getCookie(c, lucia.sessionCookieName) ?? null;
@@ -40,6 +43,19 @@ app.use("*", async (c, next) => {
   return next();
 });
 
+// bullmq worker TODO: move to a worker file in a separate process
+const worker = new Worker('myqueue', async (job: { data: { fileId: string } }) => {
+  processDocument(job.data.fileId);
+}, {
+  connection: {
+    host: 'localhost',
+    port: 6379
+  }
+});
+
+worker.on('completed', (job) => {
+  console.log(`the job ${job.id} has completed!`);
+});
 
 app.get('/', (c) => {
   return c.text('Hello Hono!')

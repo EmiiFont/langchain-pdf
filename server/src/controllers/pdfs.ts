@@ -4,8 +4,8 @@ import { createDownloadUrl, upload } from "../files"
 import { fileUploadMiddleware } from '../middleware/handle_file_upload';
 import type { StatusCode } from 'hono/utils/http-status';
 
-import { processDocument } from '../tasks/embeddings';
 import type { Context } from '../context';
+import myQueue from '../../bullmq/init'
 
 const prisma = new PrismaClient();
 
@@ -38,8 +38,11 @@ app.post('/', fileUploadMiddleware, async (c) => {
     }
   });
 
-   // TODO: Defer this to be processed by the worker
-  processDocument(fileId)
+  // TODO: Defer this to be processed by the worker
+  const job = await myQueue.add('processDocument', { fileId: fileId })
+  console.log(`Job ${job.id} added to queue ${job.name}`);
+
+  //processDocument(fileId)
 
   const pdf = { id: newPdf.id, name: newPdf.name, userId: newPdf.userId }
   return c.json({ pdf })
