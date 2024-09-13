@@ -69,9 +69,9 @@ app.route('/api/auth', user);
 app.route('/api/conversations', converstation);
 app.route('/api/pdfs', pdfs)
 
-app.get('/api/:path?', (c) => {
-  return c.json({ catchAll: {} });
-});
+//app.get('/api/:path?', (c) => {
+//  return c.json({ catchAll: {} });
+//});
 
 export default {
   port: 3333,

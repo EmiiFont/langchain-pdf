@@ -14,7 +14,20 @@ export async function getMessagesByConversationId(
       createAt: 'asc'
     }
   })
-  return messages.map((message: any) => message.asLCMessage())
+
+  return messages.map((message: any) => { return asLcMessage(message) })
+}
+
+function asLcMessage(message: any) {
+  if (message.role === "human" || message.role === "user") {
+    return new HumanMessage(message.content)
+  } else if (message.role === "ai" || message.role === "assistant") {
+    return new AIMessage(message.content)
+  } else if (message.role === "system") {
+    return new SystemMessage(message.content)
+  } else {
+    throw new Error(`Unknown message role: ${message.role}`)
+  }
 }
 
 export async function addMessageToConversation(
@@ -22,6 +35,7 @@ export async function addMessageToConversation(
   role: string,
   content: string
 ): Promise<any> {
+  console.log(`inserting message to conversation ${conversationId}`);
   return prisma.message.create({
     data: {
       conversationId: parseInt(conversationId),

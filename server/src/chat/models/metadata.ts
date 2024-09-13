@@ -1,15 +1,17 @@
-import { DynamicStructuredTool } from 'langchain/tools'
 import { z } from 'zod'
 
-export const metadata = new DynamicStructuredTool({
-    name: 'metadata',
-    description: 'Metadata for a PDF',
-    schema: z.object({
-        pdfId: z.string(),
-        conversationId: z.string(),
-        userId: z.string(),
-    }),
-    func: async ({ pdfId }): Promise<string> => {
-        return pdfId.toString()
-    },
-})
+const MetadataSchema = z.object({
+  conversation_id: z.string(),
+  user_id: z.string(),
+  pdf_id: z.string(),
+}).catchall(z.unknown());
+
+const ChatArgsSchema = z.object({
+  conversation_id: z.string(),
+  pdf_id: z.string(),
+  metadata: MetadataSchema,
+  streaming: z.boolean(),
+}).catchall(z.unknown());
+
+
+export { MetadataSchema, ChatArgsSchema }
