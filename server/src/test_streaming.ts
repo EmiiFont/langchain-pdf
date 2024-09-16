@@ -19,7 +19,7 @@ const handleToken = (token) => {
 
 
 const chatOpenAI = new ChatOpenAI({
-  streaming: true,
+  streaming: false,
   callbacks: [{
     handleLLMNewToken: handleToken,
   }],
@@ -29,8 +29,19 @@ const prompt = ChatPromptTemplate.fromTemplate("tell me a short story in {length
 const formattedPrompt = await prompt.format({length: 2 });
 const message = new HumanMessage(formattedPrompt);
 
-await chatOpenAI.call([message]);
+//await chatOpenAI.call([message]);
 
+const llmChain = new LLMChain({
+llm: chatOpenAI,
+  prompt: prompt,
+  callbacks: [{
+    handleLLMNewToken: handleToken,
+  }],
+})
+
+const res = await llmChain.call({length: 2})
+
+console.log(res)
 class StreamingChain extends LLMChain {
     constructor() {
         super({
