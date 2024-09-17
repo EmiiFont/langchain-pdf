@@ -68,7 +68,7 @@ app.get('/', async (c) => {
 app.post('/:conversation_id/messages', async (c) => {
   const body = await c.req.json();
   const input = body.input;
-  const stream = c.req.query('stream');
+  const streaming = c.req.query('stream');
   const conversationId = c.req.param('conversation_id')
   const user = c.get('user');
 
@@ -88,11 +88,23 @@ app.post('/:conversation_id/messages', async (c) => {
 
   console.log(`the real conversation id: --->`, conversationId);
 
+  const queue = [];
+  const handleLLMNewToken= (token: string) => {
+    queue.push[token];
+  }
+  const handleLLMEnd = () => {
+    queue.push(null);
+  }
+
   type ChatArgs = z.infer<typeof ChatArgsSchema>;
   const chatArgs: ChatArgs = {
     pdf_id: conversations?.pdf.id!,
     streaming: Boolean(stream),
     conversation_id: conversationId,
+    callbacks: {
+      newToken: newTokenHandler,
+      tokenEnd: tokenEndHandler,
+    },
     metadata: {
       "conversation_id": conversationId,
       "user_id": user.id,
@@ -105,11 +117,17 @@ app.post('/:conversation_id/messages', async (c) => {
     return c.text('chat not implemented');
   }
 
-  if (stream) {
+  if (streaming) {
     return streamText(c, async (stream) => {
       // Write a text with a new line ('\n').
-      await stream.writeln("aaa")
-      // Wait 1 second.
+      await chat.stream({ question: input, chat_history: buildMemory(chatArgs) });
+      while(true) {
+       const tok = queue.shift();
+        if (!tok) {
+          break;
+        }
+      await stream.write(tok)
+      }
     })
   }
   const res = await chat.invoke({ question: input, chat_history: buildMemory(chatArgs) });
