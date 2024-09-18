@@ -11,6 +11,10 @@ const ChatArgsSchema = z.object({
   pdf_id: z.string(),
   metadata: MetadataSchema,
   streaming: z.boolean(),
+  callbacks: z.array(z.object({
+    handleLLMNewToken: z.function(),
+    handleLLMEnd: z.function(),
+  }))
 }).catchall(z.unknown());
 
 

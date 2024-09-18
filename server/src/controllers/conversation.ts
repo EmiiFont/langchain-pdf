@@ -1,18 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { Hono } from 'hono'
 import { streamText } from 'hono/streaming';
-import type { ChatArgsSchema } from '../chat/models/metadata';
 import type { Context } from '../context';
 import { buildChat } from '../chat/chat';
-import type { z } from 'zod';
 import { buildMemory } from '../chat/memories/sql_memory';
 
 const app = new Hono<Context>()
 
 const prisma = new PrismaClient();
-// conversations routes
 
-//create converrsation
 app.post('/', async (c) => {
   const pdfId = c.req.query('pdf_id');
   const user = c.get('user');
@@ -38,13 +34,6 @@ app.post('/', async (c) => {
 
 app.get('/', async (c) => {
   const id = c.req.query('pdf_id')
-  //const pdf = await prisma.pdf.findUnique({
-  //  where: { id: id },
-  //  include: {
-  //    conversations: true
-  //  }
-  //});
-
   const conversation = await prisma.conversation.findMany({
     where: {
       pdfId: id
@@ -86,24 +75,21 @@ app.post('/:conversation_id/messages', async (c) => {
     }
   });
 
-  console.log(`the real conversation id: --->`, conversationId);
+  const queue: Array<string | null> = [];
 
-  const queue = [];
-  const handleLLMNewToken= (token: string) => {
-    queue.push[token];
+  const handleLLMNewToken = (token: string) => {
+    queue.push(token);
   }
   const handleLLMEnd = () => {
     queue.push(null);
   }
 
-  type ChatArgs = z.infer<typeof ChatArgsSchema>;
-  const chatArgs: ChatArgs = {
-    pdf_id: conversations?.pdf.id!,
-    streaming: Boolean(stream),
-    conversation_id: conversationId,
+  const chatArgs: any = {
+    streaming: Boolean(streaming),
+    conversation_id: conversations?.id!,
     callbacks: {
-      newToken: newTokenHandler,
-      tokenEnd: tokenEndHandler,
+      handleLLMNewToken,
+      handleLLMEnd
     },
     metadata: {
       "conversation_id": conversationId,
@@ -111,7 +97,7 @@ app.post('/:conversation_id/messages', async (c) => {
       "pdf_id": conversations?.pdf.id!
     }
   }
-  console.log(`chatArgs: --->`, chatArgs)
+
   const chat = await buildChat(chatArgs)
   if (!chat) {
     return c.text('chat not implemented');
@@ -119,19 +105,18 @@ app.post('/:conversation_id/messages', async (c) => {
 
   if (streaming) {
     return streamText(c, async (stream) => {
-      // Write a text with a new line ('\n').
       await chat.stream({ question: input, chat_history: buildMemory(chatArgs) });
-      while(true) {
-       const tok = queue.shift();
-        if (!tok) {
+      while (true) {
+        const tok = queue.shift();
+        if (tok === null) {
           break;
         }
-      await stream.write(tok)
+        await stream.write(String(tok))
       }
     })
   }
+
   const res = await chat.invoke({ question: input, chat_history: buildMemory(chatArgs) });
-  console.log(res)
   return c.json({ role: 'assistant', content: res.text })
 });
 
