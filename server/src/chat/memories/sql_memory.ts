@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { BaseChatMessageHistory } from '@langchain/core/chat_history';
 import { getMessagesByConversationId, addMessageToConversation } from '../../api';
 import type { BaseMessage } from '@langchain/core/messages';
-import { ConversationTokenBufferMemory } from 'langchain/memory';
+import { BufferMemory, ConversationTokenBufferMemory } from 'langchain/memory';
 import { buildllm } from '../llms/chatopenai';
 
 export class SqlMessageHistory extends BaseChatMessageHistory {
@@ -37,13 +37,11 @@ export class SqlMessageHistory extends BaseChatMessageHistory {
 }
 
 export function buildMemory(chatArgs: any) {
-  const llm = buildllm(chatArgs);
-  console.log(`the conversation id is ${chatArgs.conversation_id}`)
-  return new ConversationTokenBufferMemory({
+  return new BufferMemory({
     chatHistory: new SqlMessageHistory(chatArgs.conversation_id),
     inputKey: "question",
     outputKey: "text",
-    llm: llm,
+    memoryKey: "chat_history",
     returnMessages: true
   })
 }

@@ -94,10 +94,10 @@ app.post('/:conversation_id/messages', async (c) => {
     metadata: {
       "conversation_id": conversationId,
       "user_id": user.id,
-      "pdf_id": conversations?.pdf.id!
+      "pdf_id": conversations?.pdfId!
     }
   }
-
+  console.log(conversations)
   const chat = await buildChat(chatArgs)
   if (!chat) {
     return c.text('chat not implemented');
