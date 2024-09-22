@@ -11,10 +11,11 @@ async function randomComponentByScore(componentName: string, componentMap: Map<s
   const names = componentMap.keys();
 
   const avgScores = new Map();
-  for (const name in names) {
+  for (const name of names) {
     const score = parseInt(values[name] || "1");
     const count = parseInt(counts[name] || "1");
     const avg = score / count;
+    console.log(name);
     avgScores.set(name, Math.max(avg, 0.1));
   }
 
@@ -76,4 +77,4 @@ async function get_scores() {
   return aggregates
 }
 
-export { score_conversation, get_scores }
+export { randomComponentByScore, score_conversation, get_scores }

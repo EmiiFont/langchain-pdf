@@ -5,7 +5,9 @@ import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { setConversationComponents, getConversationComponents } from '../api';
 import { memoryMap } from './memories/memory_map';
 import { ChatOpenAI } from '@langchain/openai';
-
+import { Langfuse } from 'langfuse';
+import { langfuseLangchainHandler } from './tracing/langfuse';
+import { randomComponentByScore } from './score';
 
 async function getChainComponents(componentName: string, componentMap: Map<string, Function>, chatArgs: any):
   Promise<{ componentName: string, a: any }> {
@@ -19,7 +21,7 @@ async function getChainComponents(componentName: string, componentMap: Map<strin
     return { componentName: previousComponent, a: await buildComponent(chatArgs) }
   } else {
     const keys = Array.from(componentMap.keys());
-    const randomKey = keys[Math.floor(Math.random() * keys.length)];
+    const randomKey = await randomComponentByScore(componentName, componentMap); //keys[Math.floor(Math.random() * keys.length)];
     const buildComponent = componentMap.get(randomKey);
     if (!buildComponent) {
       throw new Error(`${componentName} ${randomKey} not found in componentMap`);
@@ -38,6 +40,9 @@ export async function buildChat(chatArgs: any) {
   console.log(`running chain with llm: ${llmName}, retriever: ${retrieverName}, memory: ${memoryName}`);
   setConversationComponents(chatArgs.conversation_id, llmName, retrieverName, memoryName);
 
+  langfuseLangchainHandler.metadata = chatArgs.metadata;
+  langfuseLangchainHandler.traceId = chatArgs.conversation_id;
+
   const chain = ConversationalRetrievalQAChain.fromLLM(
     llm,
     buildRetriever,
@@ -45,10 +50,12 @@ export async function buildChat(chatArgs: any) {
       memory: buildMemory,
       returnSourceDocuments: true,
       verbose: true,
+      callbacks: [langfuseLangchainHandler],
       questionGeneratorChainOptions: {
         llm: new ChatOpenAI({})
       }
     },
   );
   return chain
-} 
+}
+
