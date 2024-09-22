@@ -19,7 +19,6 @@ app.get('/user', (c) => {
 
 app.post('/signup', async (c) => {
   const body = await c.req.json();
-  console.log(body)
   if (!body.email || !body.password) {
     c.status(400);
     return c.json({ error: 'Invalid username or password' });
@@ -53,7 +52,7 @@ app.post('/signin', async (c) => {
     password: string;
   }>();
 
-  if(!body.email || !body.password) {
+  if (!body.email || !body.password) {
     c.status(400);
     return c.json({ error: 'Invalid username or password' });
   }

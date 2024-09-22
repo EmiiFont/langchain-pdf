@@ -10,6 +10,7 @@ import { lucia } from "./lib/auth";
 import type { Context } from './context'
 import { processDocument } from './tasks/embeddings'
 import { Worker } from 'bullmq'
+import scores from './controllers/scores'
 
 const app = new Hono<Context>()
 
@@ -68,6 +69,7 @@ app.get('/api', (c) => {
 app.route('/api/auth', user);
 app.route('/api/conversations', converstation);
 app.route('/api/pdfs', pdfs)
+app.route('/api/scores', scores)
 
 //app.get('/api/:path?', (c) => {
 //  return c.json({ catchAll: {} });

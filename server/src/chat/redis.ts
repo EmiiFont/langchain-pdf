@@ -1,8 +1,7 @@
 import { createClient } from 'redis';
 
-const client = createClient({
-  host: 'localhost',
-  port: 6379
-});
-await client.connect();
+const client = await createClient()
+  .on('error', err => console.log('Redis Client Error', err))
+  .connect();
 
+export { client }

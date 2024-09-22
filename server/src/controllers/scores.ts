@@ -1,34 +1,29 @@
 import { PrismaClient } from '@prisma/client';
 import { Hono } from 'hono'
+import { get_scores, score_conversation } from '../chat/score';
 
 const app = new Hono()
 
 const prisma = new PrismaClient();
-// score routes
-app.get('/', (c) => {
-    return c.json({ })
+app.get('/', async (c) => {
+  const scoresAggregates = await get_scores();
+  console.log(scoresAggregates);
+  return c.json(scoresAggregates)
 });
 
-app.put('/', async (c) => {
-    const body = await c.req.parseBody();
+app.post('/', async (c) => {
+  const body = await c.req.json();
+  const conversationId = parseInt(c.req.query('conversation_id') as string);
 
-    const conversationId = parseInt(body['conversation_id'] as string);
-    const score = parseFloat(body['score'] as string);
-    const conversation = await prisma.conversation.findUnique({
-        where: { id: conversationId }
-    });
-    if (Number.isNaN(score) || score < -1 || score > 1) {
-        throw new Error('Score must be a float between -1 and 1')
-    }
-// await scoreConversation({
-    //   conversationId: conversation.id,
-    //   score,
-    //   llm: conversation.llm,
-    //   retriever: conversation.retriever,
-    //   memory: conversation.memory,
-    // })
-    //
-    return c.json({ message: 'Score Updated' })
+  const score = parseFloat(body['score'] as string);
+  console.log(body);
+  const conversation = await prisma.conversation.findUnique({
+    where: { id: conversationId }
+  });
+  console.log(score);
+
+  await score_conversation(conversationId, score, conversation!.llm, conversation!.retriever, conversation!.memory);
+  return c.json({ message: 'Score Updated' })
 });
 
 
