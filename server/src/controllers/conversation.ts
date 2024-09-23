@@ -4,10 +4,20 @@ import { streamText } from 'hono/streaming';
 import type { Context } from '../context';
 import { buildChat } from '../chat/chat';
 import { buildMemory } from '../chat/memories/sql_memory';
+import { langfuseLangchainHandler } from '../chat/tracing/langfuse';
 
 const app = new Hono<Context>()
 
 const prisma = new PrismaClient();
+
+const executeChain = async (chain: any, input: string, isInvoke: Boolean, chatArgs: any) => {
+  langfuseLangchainHandler.traceId = chatArgs.conversation_id;
+  langfuseLangchainHandler.metadata = chatArgs.metadata;
+  if (isInvoke) {
+    return await chain.invoke({ question: input, chat_history: buildMemory(chatArgs) }, { callbacks: [langfuseLangchainHandler] });
+  }
+  return await chain.stream({ question: input, chat_history: buildMemory(chatArgs) }, { callbacks: [langfuseLangchainHandler] });
+}
 
 app.post('/', async (c) => {
   const pdfId = c.req.query('pdf_id');
@@ -86,7 +96,7 @@ app.post('/:conversation_id/messages', async (c) => {
 
   const chatArgs: any = {
     streaming: Boolean(streaming),
-    conversation_id: conversations?.id!,
+    conversation_id: conversationId,
     callbacks: {
       handleLLMNewToken,
       handleLLMEnd
@@ -97,7 +107,6 @@ app.post('/:conversation_id/messages', async (c) => {
       "pdf_id": conversations?.pdfId!
     }
   }
-  console.log(conversations)
   const chat = await buildChat(chatArgs)
   if (!chat) {
     return c.text('chat not implemented');
@@ -105,7 +114,7 @@ app.post('/:conversation_id/messages', async (c) => {
 
   if (streaming) {
     return streamText(c, async (stream) => {
-      await chat.stream({ question: input, chat_history: buildMemory(chatArgs) });
+      await executeChain(chat, input, false, chatArgs);
       while (true) {
         const tok = queue.shift();
         if (tok === null) {
@@ -116,7 +125,7 @@ app.post('/:conversation_id/messages', async (c) => {
     })
   }
 
-  const res = await chat.invoke({ question: input, chat_history: buildMemory(chatArgs) });
+  const res = await executeChain(chat, input, true, chatArgs);
   return c.json({ role: 'assistant', content: res.text })
 });
 

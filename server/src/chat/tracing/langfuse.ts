@@ -11,7 +11,9 @@ const langfuse = new Langfuse({
 const langfuseLangchainHandler = new CallbackHandler({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
   secretKey: process.env.LANGFUSE_SECRET_KEY,
-  baseUrl: "https://us.cloud.langfuse.com"
+  baseUrl: "https://us.cloud.langfuse.com",
+  flushAt: 1
 });
+
 
 export { langfuse, langfuseLangchainHandler };

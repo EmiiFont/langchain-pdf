@@ -5,8 +5,6 @@ import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { setConversationComponents, getConversationComponents } from '../api';
 import { memoryMap } from './memories/memory_map';
 import { ChatOpenAI } from '@langchain/openai';
-import { Langfuse } from 'langfuse';
-import { langfuseLangchainHandler } from './tracing/langfuse';
 import { randomComponentByScore } from './score';
 
 async function getChainComponents(componentName: string, componentMap: Map<string, Function>, chatArgs: any):
@@ -40,9 +38,6 @@ export async function buildChat(chatArgs: any) {
   console.log(`running chain with llm: ${llmName}, retriever: ${retrieverName}, memory: ${memoryName}`);
   setConversationComponents(chatArgs.conversation_id, llmName, retrieverName, memoryName);
 
-  langfuseLangchainHandler.metadata = chatArgs.metadata;
-  langfuseLangchainHandler.traceId = chatArgs.conversation_id;
-
   const chain = ConversationalRetrievalQAChain.fromLLM(
     llm,
     buildRetriever,
@@ -50,7 +45,6 @@ export async function buildChat(chatArgs: any) {
       memory: buildMemory,
       returnSourceDocuments: true,
       verbose: true,
-      callbacks: [langfuseLangchainHandler],
       questionGeneratorChainOptions: {
         llm: new ChatOpenAI({})
       }
